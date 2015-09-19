@@ -13,33 +13,44 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Map.Entry;
+import java.util.function.Predicate;
 
 
 public class Main {
 
-    private static final RomPredicate badDump = new RomPredicate(".+\\[b\\d*\\].+");
-    private static final RomPredicate hacked = new RomPredicate(".+\\[h\\d*\\].+");
-    private static final RomPredicate pirated = new RomPredicate(".+\\[p\\d*\\].+");
-    private static final RomPredicate overdumped = new RomPredicate(".+\\[o\\d*\\].+");
-    private static final RomPredicate trained = new RomPredicate(".+\\[t\\d*\\].+");
-    private static final RomPredicate hacks = new RomPredicate(".+\\([^)]*Hack\\).+");
-    private static final RomPredicate fixed = new RomPredicate(".+\\[f\\d*\\].+");
-    private static final RomPredicate translation = new RomPredicate(".+\\[T[+-][^\\]]+\\].+");
-    private static final RomPredicate prototype = new RomPredicate(".+\\(Prototype[^)]*\\).+");
-    private static final RomPredicate hackedForMapper = new RomPredicate(".+\\[hM\\d*\\].+");
-    private static final RomPredicate otherBadDump = new RomPredicate(".+\\[b[a-z]\\].+");
-    private static final RomPredicate alternative = new RomPredicate(".+\\[a\\d+\\].+");
-    private static final RomPredicate publicDomain = new RomPredicate(".+\\(PD\\).+");
-    private static final RomPredicate unlicensed = new RomPredicate(".+\\(Unl\\).+");
-    private static final RomPredicate pc10version = new RomPredicate(".+\\(PC10\\).+");
-    private static final RomPredicate fdsConversion = new RomPredicate(".+\\(FDS Conversion\\).+");
-    private static final RomPredicate gbaVersion = new RomPredicate(".+\\(GBA e-Reader\\).+");
-    private static final RomPredicate vs = new RomPredicate(".+\\(VS\\).+");
-    private static final RomPredicate farEast = new RomPredicate(".+\\[hFFE\\].+");
-    private static final RomPredicate aladdin = new RomPredicate(".+\\(Aladdin\\).+");
-    private static final RomPredicate sachen = new RomPredicate(".+\\(Sachen[^)]*\\).+");
+    private static Predicate<Rom> match(String regexp) {
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("regex:" + regexp);
+        return rom -> matcher.matches(rom.path.getFileName());
+    }
+    
+    private static Predicate<Rom> badDump = match(".+\\[b\\d*\\].+");
+    private static Predicate<Rom> hacked = match(".+\\[h\\d*\\].+");
+    private static Predicate<Rom> pirated = match(".+\\[p\\d*\\].+");
+    private static Predicate<Rom> overdumped = match(".+\\[o\\d*\\].+");
+    private static Predicate<Rom> trained = match(".+\\[t\\d*\\].+");
+    private static Predicate<Rom> hacks = match(".+\\([^)]*Hack\\).+");
+    private static Predicate<Rom> fixed = match(".+\\[f\\d*\\].+");
+    private static Predicate<Rom> translation = match(".+\\[T[+-][^\\]]+\\].+");
+    private static Predicate<Rom> prototype = match(".+\\(Prototype[^)]*\\).+");
+    private static Predicate<Rom> hackedForMapper = match(".+\\[hM\\d*\\].+");
+    private static Predicate<Rom> otherBadDump = match(".+\\[b[a-z]\\].+");
+    private static Predicate<Rom> alternative = match(".+\\[a\\d+\\].+");
+    private static Predicate<Rom> publicDomain = match(".+\\(PD\\).+");
+    private static Predicate<Rom> unlicensed = match(".+\\(Unl\\).+");
+    private static Predicate<Rom> pc10version = match(".+\\(PC10\\).+");
+    private static Predicate<Rom> fdsConversion = match(".+\\(FDS Conversion\\).+");
+    private static Predicate<Rom> gbaVersion = match(".+\\(GBA e-Reader\\).+");
+    private static Predicate<Rom> vs = match(".+\\(VS\\).+");
+    private static Predicate<Rom> farEast = match(".+\\[hFFE\\].+");
+    private static Predicate<Rom> aladdin = match(".+\\(Aladdin\\).+");
+    private static Predicate<Rom> sachen = match(".+\\(Sachen[^)]*\\).+");
+    private static Predicate<Rom> chinese = match(".+\\(Ch\\).+");
+
+    private static Predicate<Rom> checks = badDump.or(hacked).or(pirated).or(overdumped).or(trained).or(hacks)
+                                                  .or(fixed).or(translation).or(prototype).or(hackedForMapper)
+                                                  .or(otherBadDump).or(alternative).or(publicDomain)
+                                                  .or(unlicensed).or(pc10version).or(fdsConversion).or(gbaVersion)
+                                                  .or(vs).or(farEast).or(aladdin).or(sachen).or(chinese);
 
     private static Map<String, List<Rom>> getGames(List<Rom> roms) {
         Map<String, List<Rom>> games = new HashMap<>();
@@ -66,27 +77,7 @@ public class Main {
 
         List<Rom> roms = getRoms(dir);
 
-        roms.removeIf(badDump);
-        roms.removeIf(hacked);
-        roms.removeIf(pirated);
-        roms.removeIf(overdumped);
-        roms.removeIf(trained);
-        roms.removeIf(hacks);
-        roms.removeIf(fixed);
-        roms.removeIf(translation);
-        roms.removeIf(prototype);
-        roms.removeIf(hackedForMapper);
-        roms.removeIf(otherBadDump);
-        roms.removeIf(alternative);
-        roms.removeIf(publicDomain);
-        roms.removeIf(unlicensed);
-        roms.removeIf(pc10version);
-        roms.removeIf(fdsConversion);
-        roms.removeIf(gbaVersion);
-        roms.removeIf(vs);
-        roms.removeIf(farEast);
-        roms.removeIf(aladdin);
-        roms.removeIf(sachen);
+        roms.removeIf(checks);
 
         Map<String, List<Rom>> games = getGames(roms);
         sortRoms(games);
