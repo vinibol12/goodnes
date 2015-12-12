@@ -23,34 +23,35 @@ public class Main {
         return rom -> matcher.matches(rom.path.getFileName());
     }
     
-    private static Predicate<Rom> badDump = match(".+\\[b\\d*\\].+");
-    private static Predicate<Rom> hacked = match(".+\\[h\\d*\\].+");
-    private static Predicate<Rom> pirated = match(".+\\[p\\d*\\].+");
-    private static Predicate<Rom> overdumped = match(".+\\[o\\d*\\].+");
-    private static Predicate<Rom> trained = match(".+\\[t\\d*\\].+");
-    private static Predicate<Rom> hacks = match(".+\\([^)]*Hack\\).+");
-    private static Predicate<Rom> fixed = match(".+\\[f\\d*\\].+");
-    private static Predicate<Rom> translation = match(".+\\[T[+-][^\\]]+\\].+");
-    private static Predicate<Rom> prototype = match(".+\\(Prototype[^)]*\\).+");
-    private static Predicate<Rom> hackedForMapper = match(".+\\[hM\\d*\\].+");
-    private static Predicate<Rom> otherBadDump = match(".+\\[b[a-z]\\].+");
-    private static Predicate<Rom> alternative = match(".+\\[a\\d+\\].+");
-    private static Predicate<Rom> publicDomain = match(".+\\(PD\\).+");
-    private static Predicate<Rom> unlicensed = match(".+\\(Unl\\).+");
-    private static Predicate<Rom> pc10version = match(".+\\(PC10\\).+");
-    private static Predicate<Rom> fdsConversion = match(".+\\(FDS Conversion\\).+");
-    private static Predicate<Rom> gbaVersion = match(".+\\(GBA e-Reader\\).+");
-    private static Predicate<Rom> vs = match(".+\\(VS\\).+");
-    private static Predicate<Rom> farEast = match(".+\\[hFFE\\].+");
-    private static Predicate<Rom> aladdin = match(".+\\(Aladdin\\).+");
-    private static Predicate<Rom> sachen = match(".+\\(Sachen[^)]*\\).+");
-    private static Predicate<Rom> chinese = match(".+\\(Ch\\).+");
+    private static final Predicate<Rom> BAD_DUMP = match(".+\\[b\\d*\\].+");
+    private static final Predicate<Rom> HACKED = match(".+\\[h\\d*\\].+");
+    private static final Predicate<Rom> PIRATED = match(".+\\[p\\d*\\].+");
+    private static final Predicate<Rom> OVERDUMPED = match(".+\\[o\\d*\\].+");
+    private static final Predicate<Rom> TRAINED = match(".+\\[t\\d*\\].+");
+    private static final Predicate<Rom> HACKS = match(".+\\([^)]*Hack\\).+");
+    private static final Predicate<Rom> FIXED = match(".+\\[f\\d*\\].+");
+    private static final Predicate<Rom> TRANSLATION = match(".+\\[T[+-][^\\]]+\\].+");
+    private static final Predicate<Rom> PROTOTYPE = match(".+\\(Prototype[^)]*\\).+");
+    private static final Predicate<Rom> HACKED_FOR_MAPPER = match(".+\\[hM\\d*\\].+");
+    private static final Predicate<Rom> OTHER_BAD_DUMP = match(".+\\[b[a-z]\\].+");
+    private static final Predicate<Rom> ALTERNATIVE = match(".+\\[a\\d+\\].+");
+    private static final Predicate<Rom> PUBLIC_DOMAIN = match(".+\\(PD\\).+");
+    private static final Predicate<Rom> UNLICENSED = match(".+\\(Unl\\).+");
+    private static final Predicate<Rom> PC_10_VERSION = match(".+\\(PC10\\).+");
+    private static final Predicate<Rom> FDS_CONVERSION = match(".+\\(FDS Conversion\\).+");
+    private static final Predicate<Rom> GBA_VERSION = match(".+\\(GBA e-Reader\\).+");
+    private static final Predicate<Rom> VERSUS = match(".+\\(VS\\).+");
+    private static final Predicate<Rom> FAR_EAST = match(".+\\[hFFE\\].+");
+    private static final Predicate<Rom> ALADDIN = match(".+\\(Aladdin\\).+");
+    private static final Predicate<Rom> SACHEN = match(".+\\(Sachen[^)]*\\).+");
+    private static final Predicate<Rom> CHINESE = match(".+\\(Ch\\).+");
 
-    private static Predicate<Rom> checks = badDump.or(hacked).or(pirated).or(overdumped).or(trained).or(hacks)
-                                                  .or(fixed).or(translation).or(prototype).or(hackedForMapper)
-                                                  .or(otherBadDump).or(alternative).or(publicDomain)
-                                                  .or(unlicensed).or(pc10version).or(fdsConversion).or(gbaVersion)
-                                                  .or(vs).or(farEast).or(aladdin).or(sachen).or(chinese);
+    private static final Predicate<Rom> CHECKS = BAD_DUMP.or(HACKED).or(PIRATED).or(OVERDUMPED).or(TRAINED).or(HACKS)
+                                                         .or(FIXED).or(TRANSLATION).or(PROTOTYPE).or(HACKED_FOR_MAPPER)
+                                                         .or(OTHER_BAD_DUMP).or(ALTERNATIVE).or(PUBLIC_DOMAIN)
+                                                         .or(UNLICENSED).or(PC_10_VERSION).or(FDS_CONVERSION)
+                                                         .or(GBA_VERSION).or(VERSUS).or(FAR_EAST).or(ALADDIN).or(SACHEN)
+                                                         .or(CHINESE);
 
     private static Map<String, List<Rom>> getGames(List<Rom> roms) {
         Map<String, List<Rom>> games = new HashMap<>();
@@ -77,27 +78,25 @@ public class Main {
 
         List<Rom> roms = getRoms(dir);
 
-        roms.removeIf(checks);
+        roms.removeIf(CHECKS);
 
         Map<String, List<Rom>> games = getGames(roms);
         sortRoms(games);
 
-        moveRomsToDownloads(games);
+        moveRomsToRomsFolder(games);
     }
 
-    private static void moveRomsToDownloads(Map<String, List<Rom>> games) throws IOException {
+    private static void moveRomsToRomsFolder(Map<String, List<Rom>> games) throws IOException {
         for (List<Rom> roms : games.values()) {
             Rom rom = roms.get(0);
-            Files.copy(rom.path, Paths.get("/Users/mirco/Downloads", rom.path.getFileName().toString()));
+            Files.copy(rom.path, Paths.get("/Users/mirco/Downloads/ROMS", rom.path.getFileName().toString()));
         }
     }
 
     private static void sortRoms(Map<String, List<Rom>> games) {
-        for (List<Rom> list : games.values()) {
-            if (list.size() > 1) {
-                Collections.sort(list);
-            }
-        }
+        games.values().stream()
+             .filter(list -> list.size() > 1)
+             .forEach(Collections::sort);
     }
 
     private static List<Rom> getRoms(Path dir) throws IOException {
@@ -105,7 +104,6 @@ public class Main {
             List<Rom> roms = new LinkedList<>();
 
             PathMatcher zipFile = FileSystems.getDefault().getPathMatcher("glob:*.zip");
-
             for (Path path : stream) {
                 if (Files.isRegularFile(path)) {
                     if (zipFile.matches(path.getFileName())) {
